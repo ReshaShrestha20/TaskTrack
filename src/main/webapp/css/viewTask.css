@@ -163,10 +163,7 @@ body {
     color: #842029;
 }
 
-.status.pending {
-    background-color: #cfe2ff;
-    color: #084298;
-}
+
 
 .difficulty {
     display: inline-block;

@@ -19,7 +19,6 @@
             <a href="adminDashboard" class="active">Admin Dashboard</a>
             <a href="adminProfile">Admin Profile</a>
             <a href="userList">User List</a>
-            <a href="modifyUser">Modify User</a>
         </div>
     </nav>
 

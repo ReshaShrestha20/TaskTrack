@@ -21,7 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class PasswordUtil {
 	private static final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
 
-    private static final int TAG_LENGTH_BIT = 128; // must be one of {128, 120, 112, 104, 96}
+    private static final int TAG_LENGTH_BIT = 128; 
     private static final int IV_LENGTH_BYTE = 12;
     private static final int SALT_LENGTH_BYTE = 16;
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
@@ -33,19 +33,17 @@ public class PasswordUtil {
         return nonce;
     }
 
-    // AES secret key
+ 
     public static SecretKey getAESKey(int keysize) throws NoSuchAlgorithmException {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(keysize, SecureRandom.getInstanceStrong());
         return keyGen.generateKey();
     }
 
-    // Password derived AES 256 bits secret key
+   
     public static SecretKey getAESKeyFromPassword(char[] password, byte[] salt){
            	try {
            		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-           		// iterationCount = 65536
-           		// keyLength = 256
            		KeySpec spec = new PBEKeySpec(password, salt, 65536, 256);
            		SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
            		return secret;
@@ -57,7 +55,6 @@ public class PasswordUtil {
        		return null;
     }
 
-    // return a base64 encoded AES encrypted text
     public static String encrypt(String employee_id, String password){
     	try {
 		    // 16 bytes salt

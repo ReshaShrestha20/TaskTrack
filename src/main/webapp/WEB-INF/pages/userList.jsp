@@ -1,10 +1,167 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
+<%@ page import="com.tasktrack.model.UserModel" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>TaskTrack - User List</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/userList.css" />
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f7f0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .message {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .search-filter {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .search-form {
+            display: flex;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        .search-form input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .search-form button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        
+        .filter-form {
+            display: flex;
+        }
+        
+        .filter-form select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .filter-form button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .user-table th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .user-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .user-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .edit-btn, .delete-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .edit-btn {
+            background-color: #2196F3;
+        }
+        
+        .delete-btn {
+            background-color: #f44336;
+        }
+        
+        .center-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .go-back-btn {
+            padding: 10px 20px;
+            background-color: #607d8b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .go-back-btn:hover {
+            background-color: #455a64;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -22,14 +179,51 @@
             </div>
         <% } %>
         
-        <div class="search-filter">
-            <input type="text" id="searchInput" placeholder="Search users...">
-            <select id="filterType">
-                <option value="all">All Users</option>
-                <option value="Admin">Admins</option>
-                <option value="User">Regular Users</option>
-            </select>
-        </div>
+        <% 
+        String successMessage = (String) session.getAttribute("successMessage");
+        if (successMessage != null) {
+            session.removeAttribute("successMessage");
+        %>
+            <div class="message success">
+                <%= successMessage %>
+            </div>
+        <% } %>
+        
+       <div class="search-filter">
+		    <form class="search-form" action="${pageContext.request.contextPath}/userList" method="post">
+		        <input type="hidden" name="action" value="search">
+		        <input type="text" id="searchInput" name="searchInput" placeholder="Search users..." 
+		               value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>">
+		        <button type="submit" class="search-button">Search</button>
+		    </form>
+    
+		    <form class="filter-form" action="${pageContext.request.contextPath}/userList" method="post">
+		        <input type="hidden" name="action" value="filter">
+		        <select id="filterType" name="filterType">
+		            <option value="all" <%= request.getAttribute("filterType") == null || "all".equals(request.getAttribute("filterType")) ? "selected" : "" %>>All Users</option>
+		            <option value="Admin" <%= "Admin".equals(request.getAttribute("filterType")) ? "selected" : "" %>>Admins</option>
+		            <option value="User" <%= "User".equals(request.getAttribute("filterType")) ? "selected" : "" %>>Regular Users</option>
+		        </select>
+		        <button type="submit" class="filter-button">Filter</button>
+		    </form>
+		</div>
+        
+ 
+        <% if (request.getAttribute("searchQuery") != null) { %>
+            <div class="search-results-info">
+                <p>
+                    Showing results for: "<%= request.getAttribute("searchQuery") %>" 
+                    <a href="userList">(Clear search)</a>
+                </p>
+            </div>
+        <% } else if (request.getAttribute("filterType") != null && !"all".equals(request.getAttribute("filterType"))) { %>
+            <div class="search-results-info">
+                <p>
+                    Filtered by user type: <%= request.getAttribute("filterType") %> 
+                    <a href="userList">(Show all)</a>
+                </p>
+            </div>
+        <% } %>
         
         <div class="table-container">
             <table class="user-table">
@@ -46,161 +240,72 @@
                 </thead>
                 <tbody>
                     <% 
-                    if(request.getAttribute("userList") != null) {
-                        java.util.List<?> userList = (java.util.List<?>)request.getAttribute("userList");
-                        for(Object userObj : userList) {
-                            java.lang.reflect.Method getId = userObj.getClass().getMethod("getId");
-                            java.lang.reflect.Method getFirstName = userObj.getClass().getMethod("getFirstName");
-                            java.lang.reflect.Method getLastName = userObj.getClass().getMethod("getLastName");
-                            java.lang.reflect.Method getUsername = userObj.getClass().getMethod("getUsername");
-                            java.lang.reflect.Method getEmail = userObj.getClass().getMethod("getEmail");
-                            java.lang.reflect.Method getPhoneNumber = userObj.getClass().getMethod("getPhoneNumber");
-                            java.lang.reflect.Method getUserType = userObj.getClass().getMethod("getUserType");
-                            Object id = getId.invoke(userObj);
-                            String firstName = (String)getFirstName.invoke(userObj);
-                            String lastName = (String)getLastName.invoke(userObj);
-                            String username = (String)getUsername.invoke(userObj);
-                            String email = (String)getEmail.invoke(userObj);
-                            String phoneNumber = (String)getPhoneNumber.invoke(userObj);
-                            String userType = (String)getUserType.invoke(userObj);
+                    List<UserModel> userList = (List<UserModel>) request.getAttribute("userList");
+                    if (userList != null && !userList.isEmpty()) {
+                        for (UserModel user : userList) {
                     %>
                         <tr>
-                            <td><%= id %></td>
-                            <td><%= firstName %> <%= lastName %></td>
-                            <td><%= username %></td>
-                            <td><%= email %></td>
-                            <td><%= phoneNumber %></td>
-                            <td><%= userType %></td>
+                            <td><%= user.getId() %></td>
+                            <td><%= user.getFirstName() %> <%= user.getLastName() %></td>
+                            <td><%= user.getUserName() != null ? user.getUserName() : "" %></td>
+                            <td><%= user.getEmail() %></td>
+                            <td><%= user.getNumber() %></td>
+                            <td><%= user.getUserType() %></td>
                             <td class="actions">
-                                <button class="edit-btn" onclick="editUser('<%= id %>')">Edit</button>
-                                <button class="delete-btn" onclick="deleteUser('<%= id %>')">Delete</button>
+    						<a href="${pageContext.request.contextPath}/editUser?id=<%= user.getId() %>" class="edit-btn">Edit</a>
+    						<form style="display:inline;" action="userList" method="post" onsubmit="return confirm('Are you sure you want to delete this user?');">
+       					   	 <input type="hidden" name="action" value="delete">
+        					 <input type="hidden" name="userId" value="<%= user.getId() %>">
+  							 <button type="submit" class="delete-btn">Delete</button>
+    </form>
+</td>
+                        </tr>
+                    <% 
+                        }
+                    } else {
+                    %>
+                        <tr>
+                            <td colspan="7" class="no-data">
+                                <% if (request.getAttribute("searchQuery") != null) { %>
+                                    No users found matching "<%= request.getAttribute("searchQuery") %>". 
+                                    <a href="userList">View all users</a>
+                                <% } else if (request.getAttribute("filterType") != null && !"all".equals(request.getAttribute("filterType"))) { %>
+                                    No users found with type "<%= request.getAttribute("filterType") %>". 
+                                    <a href="userList">View all users</a>
+                                <% } else { %>
+                                    No users found in the system.
+                                <% } %>
                             </td>
                         </tr>
-                    <%
-                        }
-                    }
-                    %>
-                    
-                    <!-- Sample data for preview (remove in production) -->
-                    <tr>
-                        <td>114</td>
-                        <td>Resha Shrestha</td>
-                        <td>user8</td>
-                        <td>reshast1@gmail.com</td>
-                        <td>9874562407</td>
-                        <td>User</td>
-                        <td class="actions">
-                            <button class="edit-btn">Edit</button>
-                            <button class="delete-btn">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>112</td>
-                        <td>Rabina Burlakoti</td>
-                        <td>admin203</td>
-                        <td>rabina780@gmail.com</td>
-                        <td>7895632107</td>
-                        <td>Admin</td>
-                        <td class="actions">
-                            <button class="edit-btn">Edit</button>
-                            <button class="delete-btn">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>111</td>
-                        <td>Dinushka Regmi</td>
-                        <td>dregmi925</td>
-                        <td>drengmi@gmail.com</td>
-                        <td>1234567890</td>
-                        <td>User</td>
-                        <td class="actions">
-                            <button class="edit-btn">Edit</button>
-                            <button class="delete-btn">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>110</td>
-                        <td>Prachi Sharma</td>
-                        <td>psharma19</td>
-                        <td>prachisharma@gmail.com</td>
-                        <td>9876123450</td>
-                        <td>User</td>
-                        <td class="actions">
-                            <button class="edit-btn">Edit</button>
-                            <button class="delete-btn">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>109</td>
-                        <td>Rosha Shrestha</td>
-                        <td>admin9940</td>
-                        <td>roshashrestha10@gmail.com</td>
-                        <td>9876554217</td>
-                        <td>Admin</td>
-                        <td class="actions">
-                            <button class="edit-btn">Edit</button>
-                            <button class="delete-btn">Delete</button>
-                        </td>
-                    </tr>
+                    <% } %>
                 </tbody>
             </table>
         </div>
         
-        <div class="pagination">
-            <button class="page-btn">Previous</button>
-            <span class="page-info">Page 1 of 3</span>
-            <button class="page-btn">Next</button>
-        </div>
-        
         <div class="center-button">
-            <button id="updateBtn" class="update-btn">Update</button>
+            <a href="adminDashboard" class="go-back-btn">Go Back to Dashboard</a>
         </div>
     </div>
     
     <script>
-        // Basic search functionality
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            const filter = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.user-table tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
-            });
-        });
-        
-        // Filter by user type
-        document.getElementById('filterType').addEventListener('change', function() {
-            const filter = this.value;
-            const rows = document.querySelectorAll('.user-table tbody tr');
-            
-            rows.forEach(row => {
-                const userType = row.cells[5].textContent;
-                if (filter === 'all' || userType === filter) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-        
-        // Update button functionality
-        document.getElementById('updateBtn').addEventListener('click', function() {
-            // Add your update logic here
-            alert('User list updated successfully!');
-        });
-        
-        function editUser(id) {
-            // Add your edit logic here
-            console.log('Edit user ID:', id);
-        }
-        
-        function deleteUser(id) {
-            // Add your delete logic here
-            if (confirm('Are you sure you want to delete this user?')) {
-                console.log('Delete user ID:', id);
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function(event) {
+                    if (event.key === 'Enter') {
+                        this.closest('form').submit();
+                    }
+                });
             }
-        }
+            
+            if (searchInput && searchInput.value === '') {
+                setTimeout(function() {
+                    if (document.activeElement === document.body) {
+                        searchInput.focus();
+                    }
+                }, 500);
+            }
+        });
     </script>
 </body>
 </html>

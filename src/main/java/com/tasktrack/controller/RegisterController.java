@@ -1,7 +1,10 @@
 package com.tasktrack.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 import com.tasktrack.model.UserModel;
 import com.tasktrack.model.ProjectModel;
@@ -37,12 +40,13 @@ public class RegisterController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            System.out.println("Starting registration process");
+
+            req.getParameterMap().forEach((key, value) -> {
+            });
+            
             UserModel userModel = extractUserModel(req);
-            System.out.println("User model created: " + userModel.getUserName());
             
             Boolean isAdded = registerService.addUser(userModel);
-            System.out.println("Registration result: " + isAdded);
 
             if (isAdded == null) {
                 handleError(req, resp, "Our server is under maintenance. Please try again later!");
@@ -66,15 +70,43 @@ public class RegisterController extends HttpServlet {
         String username = req.getParameter("username");
         
         String dobStr = req.getParameter("dob");
-        LocalDate dob = LocalDate.parse(dobStr);
+        LocalDate dob;
+        try {
+            if (dobStr == null || dobStr.isEmpty()) {
+                throw new Exception("Date of birth is required");
+            }
+            
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+                sdf.setLenient(false); 
+                Date date = sdf.parse(dobStr);
+                dob = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            } catch (Exception e1) {
+                
+                String[] dateParts = dobStr.split("/");
+                if (dateParts.length != 3) {
+                    throw new Exception("Date must be in MM/DD/YYYY format");
+                }
+                
+                int month = Integer.parseInt(dateParts[0]);
+                int day = Integer.parseInt(dateParts[1]);
+                int year = Integer.parseInt(dateParts[2]);
+                
+                dob = LocalDate.of(year, month, day);
+            }
+        } catch (Exception e) {
+            System.err.println("Error parsing date: " + dobStr + " - " + e.getMessage());
+            throw new Exception("Invalid date format. Please use MM/DD/YYYY format.");
+        }
         
         String gender = req.getParameter("gender");
         String email = req.getParameter("email");
         String phoneNumber = req.getParameter("phoneNumber");
         String userType = req.getParameter("userType");
+        
         String projectName = req.getParameter("subject");
         if (projectName == null || projectName.isEmpty()) {
-            projectName = "Default";
+            projectName = "Dynamic Web Application"; 
         }
 
         String password = req.getParameter("password");
@@ -88,7 +120,7 @@ public class RegisterController extends HttpServlet {
         
         ProjectModel projectModel = new ProjectModel(projectName);
         UserModel user = new UserModel(firstName, lastName, username, dob,
-                gender, email, phoneNumber, encryptedPassword, projectModel);
+                gender, email, phoneNumber, encryptedPassword, userType, projectModel);
         
         return user;
     }

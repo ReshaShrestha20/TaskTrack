@@ -30,7 +30,7 @@ public class AuthenticationFilter implements Filter {
     
     // URLs that require admin role
     private static final String[] ADMIN_URLS = {
-        "/adminProfile", "/adminDashboard", "/userList", "/modifyUser", "/deleteUser"
+        "/adminProfile", "/adminDashboard", "/userList", "/editUser"
     };
     
     // URLs that require user role
@@ -40,7 +40,7 @@ public class AuthenticationFilter implements Filter {
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        
+        System.out.println("AuthenticationFilter initialized");
     }
     
     @Override
@@ -54,54 +54,56 @@ public class AuthenticationFilter implements Filter {
         String contextPath = httpRequest.getContextPath();
         String path = requestURI.substring(contextPath.length());
         
-        // Allow public resources without authentication
+        System.out.println("AuthFilter processing request: " + path);
+        
         if (isPublicResource(path)) {
+            System.out.println("Public resource, allowing access: " + path);
             chain.doFilter(request, response);
             return;
         }
         
-        // Checking if user is logged in
         HttpSession session = httpRequest.getSession(false);
         boolean isLoggedIn = (session != null && session.getAttribute("username") != null);
         if (!isLoggedIn) {
+            System.out.println("Not logged in, redirecting to login");
             httpResponse.sendRedirect(contextPath + "/login");
             return;
         }
         
-        // Get user role and set cookie
         String userRole = getUserRole(httpRequest);
+        System.out.println("User role: " + userRole);
+        
         if (userRole != null) {
             CookiesUtil.addCookie(httpResponse, "role", userRole, 30 * 24 * 60 * 60);
         }
         
-        // Handle root path based on role
         if (path.equals("/") || path.isEmpty()) {
             if ("admin".equals(userRole)) {
+                System.out.println("Root path, redirecting admin to dashboard");
                 httpResponse.sendRedirect(contextPath + "/adminDashboard");
                 return;
             } else {
+                System.out.println("Root path, redirecting user to home");
                 httpResponse.sendRedirect(contextPath + "/home");
                 return;
             }
         }
         
-        // Restrict access based on role
         if ("admin".equals(userRole)) {
-            // Admin can only access admin URLs
             if (!isAdminResource(path)) {
+                System.out.println("Admin attempting to access non-admin resource: " + path);
                 httpResponse.sendRedirect(contextPath + "/adminDashboard");
                 return;
             }
         } else {
-            // User can only access user URLs
             if (!isUserResource(path)) {
+                System.out.println("User attempting to access non-user resource: " + path);
                 httpResponse.sendRedirect(contextPath + "/home");
                 return;
             }
         }
         
-        chain.doFilter(request, response);
-        
+        System.out.println("Access granted to: " + path);
         chain.doFilter(request, response);
     }
     
@@ -184,5 +186,6 @@ public class AuthenticationFilter implements Filter {
     
     @Override
     public void destroy() {
+        System.out.println("AuthenticationFilter destroyed");
     }
 }
