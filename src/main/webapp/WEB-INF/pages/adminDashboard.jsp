@@ -32,7 +32,6 @@
 
         <!-- Main Content -->
         <div class="dashboard-content">
-            <!-- Display error message if there is one -->
             <% 
             String dbError = (String)request.getAttribute("dbError");
             if (dbError != null && !dbError.isEmpty()) { 
@@ -42,7 +41,6 @@
                 </div>
             <% } %>
             
-            <!-- Stats Overview Section -->
             <section class="stats-section">
                 <div class="stat-card users">
                     <div class="stat-icon">
@@ -64,16 +62,6 @@
                     </div>
                 </div>
 
-                <div class="stat-card projects">
-                    <div class="stat-icon">
-                        <i class="fas fa-cogs"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Projects</h3>
-                        <p class="stat-count"><%= request.getAttribute("projectCount") != null ? request.getAttribute("projectCount") : 0 %></p>
-                    </div>
-                </div>
-
                 <div class="stat-card tasks">
                     <div class="stat-icon">
                         <i class="fas fa-tasks"></i>
@@ -91,7 +79,7 @@
                     <h3>User number overview</h3>
                     <div class="chart user-chart">
                         <!-- User chart will be rendered here -->
-                        <img src="${pageContext.request.contextPath}/resources/images/system/userNumberChart.png" alt="User number chart">
+                        <img src="${pageContext.request.contextPath}/resources/images/system/userchart.png" alt="User number chart">
                     </div>
                 </div>
 
@@ -99,7 +87,7 @@
                     <h3>Task success insight</h3>
                     <div class="chart task-chart">
                         <!-- Task chart will be rendered here -->
-                        <img src="${pageContext.request.contextPath}/resources/images/system/taskSuccess.png" alt="Task success chart">
+                        <img src="${pageContext.request.contextPath}/resources/images/system/taskchart.png" alt="Task success chart">
                     </div>
                 </div>
             </section>
@@ -135,7 +123,6 @@
                     } 
                     else {
                     %>
-                        <!-- Display default data if no users are found -->
                         <tr>
                             <td>001</td>
                             <td>John Doe</td>

@@ -14,7 +14,7 @@ public class TaskModel {
     private int difficultyRank;
     private int priorityRank;
 
-    // Constructors and getters/setters
+
     public TaskModel() {
      
     }

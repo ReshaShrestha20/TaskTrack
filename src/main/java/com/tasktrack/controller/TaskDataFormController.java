@@ -64,10 +64,8 @@ public class TaskDataFormController extends HttpServlet {
             populateReferenceData(request);
         } catch (Exception e) {
             System.err.println("Error loading form data: " + e.getMessage());
-            e.printStackTrace();
             request.setAttribute("error", "Error loading form data: " + e.getMessage());
         }
-        
         request.getRequestDispatcher("/WEB-INF/pages/taskDataForm.jsp").forward(request, response);
     }
     
@@ -79,9 +77,7 @@ public class TaskDataFormController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {     
         String action = request.getParameter("action");
         TaskModel taskModel = extractTaskModelFromRequest(request);
-        
         try {
-
             String validationError = validateTaskData(taskModel);
             if (validationError != null) {
                 request.setAttribute("error", validationError);
@@ -90,7 +86,6 @@ public class TaskDataFormController extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/pages/taskDataForm.jsp").forward(request, response);
                 return;
             }
-            
             boolean success = false;
             if ("update".equals(action)) {
                 success = processUpdateTask(request, taskModel);
@@ -99,13 +94,10 @@ public class TaskDataFormController extends HttpServlet {
             } else {
                 success = processAddTask(request, taskModel);
             }
-                        
             populateReferenceData(request);
             request.getRequestDispatcher("/WEB-INF/pages/taskDataForm.jsp").forward(request, response);
-            
         } catch (Exception e) {
             System.err.println("Error processing form: " + e.getMessage());
-            e.printStackTrace();
             request.setAttribute("error", "Error processing form: " + e.getMessage());
             request.setAttribute("task", taskModel);
             
@@ -114,7 +106,6 @@ public class TaskDataFormController extends HttpServlet {
             } catch (Exception ex) {
                 System.err.println("Error loading reference data: " + ex.getMessage());
             }
-            
             request.getRequestDispatcher("/WEB-INF/pages/taskDataForm.jsp").forward(request, response);
         }
     }
@@ -124,7 +115,6 @@ public class TaskDataFormController extends HttpServlet {
      */
     private TaskModel extractTaskModelFromRequest(HttpServletRequest request) {
         TaskModel taskModel = new TaskModel();
-        
         String taskIdParam = request.getParameter("taskId");
         if (taskIdParam != null && !taskIdParam.isEmpty()) {
             try {
@@ -133,13 +123,11 @@ public class TaskDataFormController extends HttpServlet {
                 System.err.println("Invalid task ID format: " + taskIdParam);
             }
         }
-        
         taskModel.setTaskTitle(request.getParameter("taskTitle"));
         taskModel.setStatus(request.getParameter("status"));
         taskModel.setAssignedBy(request.getParameter("assignedBy"));
         taskModel.setAssignedTo(request.getParameter("assignedTo"));
         taskModel.setProgress(request.getParameter("progress"));
-        
         try {
             String assignedDateStr = request.getParameter("assignedDate");
             if (assignedDateStr != null && !assignedDateStr.isEmpty()) {
@@ -147,7 +135,6 @@ public class TaskDataFormController extends HttpServlet {
             } else {
                 taskModel.setAssignedDate(LocalDate.now());
             }
-            
             String dueDateStr = request.getParameter("dueDate");
             if (dueDateStr != null && !dueDateStr.isEmpty()) {
                 taskModel.setDueDate(LocalDate.parse(dueDateStr));
@@ -155,12 +142,9 @@ public class TaskDataFormController extends HttpServlet {
                 taskModel.setDueDate(LocalDate.now());
             }
         } catch (Exception e) {
-            System.err.println("Date parsing error: " + e.getMessage());
             taskModel.setAssignedDate(LocalDate.now());
             taskModel.setDueDate(LocalDate.now());
         }
-        
-
         try {
             String difficultyStr = request.getParameter("difficultyRank");
             if (difficultyStr != null && !difficultyStr.isEmpty()) {
@@ -168,7 +152,6 @@ public class TaskDataFormController extends HttpServlet {
             } else {
                 taskModel.setDifficultyRank(1);
             }
-            
             String priorityStr = request.getParameter("priorityRank");
             if (priorityStr != null && !priorityStr.isEmpty()) {
                 taskModel.setPriorityRank(Integer.parseInt(priorityStr));
@@ -176,11 +159,9 @@ public class TaskDataFormController extends HttpServlet {
                 taskModel.setPriorityRank(1);
             }
         } catch (NumberFormatException e) {
-            System.err.println("Number parsing error: " + e.getMessage());
             taskModel.setDifficultyRank(1);
             taskModel.setPriorityRank(1);
         }
-        
         return taskModel;
     }
     
@@ -192,7 +173,6 @@ public class TaskDataFormController extends HttpServlet {
         if (taskModel.getTaskTitle() == null || taskModel.getTaskTitle().trim().isEmpty()) {
             return "Task title is required";
         }
-        
         try (Connection conn = DbConfig.getDbConnection()) {
             if (conn == null) {
                 return "Could not connect to database for validation";
@@ -201,7 +181,6 @@ public class TaskDataFormController extends HttpServlet {
             if (!checkDifficultyExists(conn, taskModel.getDifficultyRank())) {
                 return "The selected Difficulty Rank doesn't exist in the system.";
             }
-            
             if (!checkPriorityExists(conn, taskModel.getPriorityRank())) {
                 return "The selected Priority Rank doesn't exist in the system.";
             }
@@ -221,7 +200,6 @@ public class TaskDataFormController extends HttpServlet {
             request.setAttribute("error", "Invalid task ID for update operation");
             return false;
         }
-        
         boolean success = taskService.updateTask(taskModel);
         if (success) {
             request.setAttribute("success", "Task updated successfully!");
@@ -242,7 +220,6 @@ public class TaskDataFormController extends HttpServlet {
             request.setAttribute("error", "Invalid task ID for delete operation");
             return false;
         }
-        
         boolean success = taskService.deleteTask(taskModel.getTaskId());
         if (success) {
             request.setAttribute("success", "Task deleted successfully!");
@@ -256,7 +233,6 @@ public class TaskDataFormController extends HttpServlet {
                 request.setAttribute("task", taskModel);
             }
         }
-        
         return success;
     }
     
@@ -341,7 +317,6 @@ public class TaskDataFormController extends HttpServlet {
             }
         } catch (Exception e) {
             System.err.println("Error loading reference data: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }

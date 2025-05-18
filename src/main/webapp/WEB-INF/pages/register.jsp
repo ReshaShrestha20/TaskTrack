@@ -81,6 +81,11 @@
             text-align: center;
             margin-top: 20px;
         }
+        .small-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -138,15 +143,16 @@
             </div>
             
             <div class="form-row">
-                <div class="form-group">
-                    <label for="dob">Date of Birth</label>
-                    <input type="date" id="dob" name="dob" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-            </div>
+    <div class="form-group">
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" name="dob" required>
+        <div class="small-text">Accepted formats: YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY, MM-DD-YYYY</div>
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+</div>
             
             <div class="form-row"> 
                 <div class="form-group">
@@ -162,7 +168,16 @@
                 </div>
             </div>
             
-     
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="image">Profile Image</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <div class="small-text">Supported formats: JPG, JPEG, PNG, GIF</div>
+                </div>
+                <div class="form-group">
+                    <!-- Empty for layout balance -->
+                </div>
+            </div>
             
             <div class="center-button">
                 <button type="submit">Submit</button>

@@ -13,6 +13,7 @@ import com.tasktrack.util.PasswordUtil;
 public class LoginService {
 	private Connection dbConn;
 	private boolean isConnectionError = false;
+	
 	public LoginService() {
 		try {
 			dbConn = DbConfig.getDbConnection();

@@ -33,9 +33,7 @@ public class UserListController extends HttpServlet {
         try {
             String search = request.getParameter("search");
             String filter = request.getParameter("filter");
-            
             List<UserModel> userList;
-            
             if (search != null && !search.trim().isEmpty()) {
                 userList = userService.searchUsersSafe(search);
                 request.setAttribute("searchQuery", search);
@@ -50,7 +48,6 @@ public class UserListController extends HttpServlet {
             
         } catch (Exception e) {
             System.err.println("Error in UserListController.doGet: " + e.getMessage());
-            e.printStackTrace();
             request.setAttribute("error", "Failed to retrieve user data: " + e.getMessage());
         }
         request.getRequestDispatcher("/WEB-INF/pages/userList.jsp").forward(request, response);
@@ -62,7 +59,6 @@ public class UserListController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        
         try {
             if ("search".equals(action)) {
                 String searchInput = request.getParameter("searchInput");
@@ -85,13 +81,10 @@ public class UserListController extends HttpServlet {
                 } else {
                     userList = userService.getAllUsersSafe();
                 }
-                
                 request.setAttribute("userList", userList);
-                
             } 
             else if ("delete".equals(action)) {
                 String userIdParam = request.getParameter("userId");
-                
                 if (userIdParam != null && !userIdParam.isEmpty()) {
                     try {
                         int userId = Integer.parseInt(userIdParam);
@@ -124,7 +117,6 @@ public class UserListController extends HttpServlet {
             List<UserModel> userList = userService.getAllUsersSafe();
             request.setAttribute("userList", userList);
         }
-        
         request.getRequestDispatcher("/WEB-INF/pages/userList.jsp").forward(request, response);
     }
 }

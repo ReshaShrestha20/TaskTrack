@@ -52,24 +52,7 @@ public class AdminDashboardService {
         }
     }
 
-    /**
-     * Get the total count of projects from the database
-     * 
-     * @return The count of projects
-     * @throws SQLException
-     * @throws ClassNotFoundException
-     */
-    public int getProjectCount() throws SQLException, ClassNotFoundException {
-        try (Connection conn = DbConfig.getDbConnection();
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM project")) {
-            
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-            return 0;
-        }
-    }
+    
 
     /**
      * Get the total count of tasks from the database
@@ -176,18 +159,7 @@ public class AdminDashboardService {
         }
     }
     
-    /**
-     * Get project count with error handling and default value
-     * 
-     * @return Project count or default value if database error occurs
-     */
-    public int getProjectCountSafe() {
-        try {
-            return getProjectCount();
-        } catch (SQLException | ClassNotFoundException e) {
-            return handleDatabaseError(e, "getProjectCount", 0);
-        }
-    }
+  
     
     /**
      * Get task count with error handling and default value

@@ -17,6 +17,7 @@ public class UserModel {
     private String password;
     private String userType;
     private ProjectModel project;
+    private String imageUrl; // Field name matches the getter method used in service
 
     /**
      * Default constructor
@@ -28,7 +29,7 @@ public class UserModel {
      * Full constructor with ID
      */
     public UserModel(int id, String firstName, String lastName, String userName, LocalDate dob, String gender,
-            String email, String number, String password, String userType, ProjectModel project) {
+            String email, String number, String password, String userType, ProjectModel project, String imageUrl) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -40,10 +41,29 @@ public class UserModel {
         this.password = password;
         this.userType = userType;
         this.project = project;
+        this.imageUrl = imageUrl;
     }
 
     /**
-     * Constructor without ID (for new users)
+     * Constructor without ID (for new users) with image
+     */
+    public UserModel(String firstName, String lastName, String userName, LocalDate dob, String gender, String email,
+            String number, String password, String userType, ProjectModel project, String imageUrl) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userName = userName;
+        this.dob = dob;
+        this.gender = gender;
+        this.email = email;
+        this.number = number;
+        this.password = password;
+        this.userType = userType;
+        this.project = project;
+        this.imageUrl = imageUrl;
+    }
+
+    /**
+     * Constructor without ID (for new users) without image
      */
     public UserModel(String firstName, String lastName, String userName, LocalDate dob, String gender, String email,
             String number, String password, String userType, ProjectModel project) {
@@ -57,6 +77,7 @@ public class UserModel {
         this.password = password;
         this.userType = userType;
         this.project = project;
+        this.imageUrl = "default-avatar.png"; // Default image
     }
 
     /**
@@ -67,8 +88,18 @@ public class UserModel {
         this.password = password;
     }
 
-    // Getters and Setters
+    /**
+     * Simple constructor for basic user info
+     */
+    public UserModel(int id, String firstName, String lastName, String email, String number) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.number = number;
+    }
 
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -101,7 +132,6 @@ public class UserModel {
         this.userName = userName;
     }
 
-    
     public String getUsername() {
         return userName;
     }
@@ -164,5 +194,18 @@ public class UserModel {
 
     public void setProject(ProjectModel project) {
         this.project = project;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    
+    public String getImage_path() {
+        return imageUrl;
     }
 }

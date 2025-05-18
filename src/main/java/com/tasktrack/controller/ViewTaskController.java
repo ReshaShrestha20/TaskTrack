@@ -31,7 +31,6 @@ public class ViewTaskController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         try {
             String searchQuery = request.getParameter("search");
             List<TaskModel> tasks;

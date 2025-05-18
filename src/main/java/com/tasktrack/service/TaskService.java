@@ -15,9 +15,7 @@ public class TaskService {
         try (Connection conn = DbConfig.getDbConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT 1")) {
-            
             if (rs.next()) {
-                System.out.println("Database connection test successful!");
                 return true;
             }
             return false;
@@ -31,20 +29,13 @@ public class TaskService {
    
     public Boolean addTask(TaskModel taskModel) {
         System.out.println("Starting addTask with model: " + taskModel.getTaskTitle());
-      
         String sql = "INSERT INTO task (Task_title, Status, Assigned_date, Due_date, " +
                      "Progress, Assigned_by, Assigned_to, Difficulty_rank, Priority_rank) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
         try (Connection conn = DbConfig.getDbConnection()) {
-            System.out.println("Database connection established");
-            
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-               
                 pstmt.setString(1, taskModel.getTaskTitle());
                 pstmt.setString(2, taskModel.getStatus());
-                
-                
                 if (taskModel.getAssignedDate() != null) {
                     pstmt.setDate(3, Date.valueOf(taskModel.getAssignedDate()));
                 } else {
@@ -56,17 +47,12 @@ public class TaskService {
                 } else {
                     pstmt.setDate(4, Date.valueOf(LocalDate.now()));
                 }
-                
                 pstmt.setString(5, taskModel.getProgress() != null ? taskModel.getProgress() : "0");
                 pstmt.setString(6, taskModel.getAssignedBy() != null ? taskModel.getAssignedBy() : "");
                 pstmt.setString(7, taskModel.getAssignedTo() != null ? taskModel.getAssignedTo() : "");
                 pstmt.setInt(8, taskModel.getDifficultyRank());
                 pstmt.setInt(9, taskModel.getPriorityRank());
-                
-                System.out.println("Executing SQL: " + sql);
                 int affected = pstmt.executeUpdate();
-                System.out.println("Rows affected: " + affected);
-                
                 return affected > 0;
             }
         } catch (SQLException e) {
@@ -83,20 +69,14 @@ public class TaskService {
     }
     
     public Boolean updateTask(TaskModel taskModel) {
-        System.out.println("Starting updateTask with model: " + taskModel.getTaskTitle());
-      
         String sql = "UPDATE task SET Task_title = ?, Status = ?, Assigned_date = ?, Due_date = ?, " +
                      "Progress = ?, Assigned_by = ?, Assigned_to = ?, Difficulty_rank = ?, Priority_rank = ? " +
                      "WHERE Task_id = ?";
         
         try (Connection conn = DbConfig.getDbConnection()) {
-            System.out.println("Database connection established for update");
-            
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-               
                 pstmt.setString(1, taskModel.getTaskTitle());
                 pstmt.setString(2, taskModel.getStatus());
-                
                 if (taskModel.getAssignedDate() != null) {
                     pstmt.setDate(3, Date.valueOf(taskModel.getAssignedDate()));
                 } else {
@@ -108,18 +88,13 @@ public class TaskService {
                 } else {
                     pstmt.setDate(4, Date.valueOf(LocalDate.now()));
                 }
-                
                 pstmt.setString(5, taskModel.getProgress() != null ? taskModel.getProgress() : "0");
                 pstmt.setString(6, taskModel.getAssignedBy() != null ? taskModel.getAssignedBy() : "");
                 pstmt.setString(7, taskModel.getAssignedTo() != null ? taskModel.getAssignedTo() : "");
                 pstmt.setInt(8, taskModel.getDifficultyRank());
                 pstmt.setInt(9, taskModel.getPriorityRank());
                 pstmt.setInt(10, taskModel.getTaskId());
-                
-                System.out.println("Executing SQL update for task ID: " + taskModel.getTaskId());
                 int affected = pstmt.executeUpdate();
-                System.out.println("Rows affected by update: " + affected);
-                
                 return affected > 0;
             }
         } catch (SQLException e) {
@@ -136,21 +111,12 @@ public class TaskService {
     }
     
     public Boolean deleteTask(int taskId) {
-        System.out.println("Starting deleteTask with ID: " + taskId);
-      
         String sql = "DELETE FROM task WHERE Task_id = ?";
-        
         try (Connection conn = DbConfig.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
             pstmt.setInt(1, taskId);
-            
-            System.out.println("Executing SQL delete for task ID: " + taskId);
             int affected = pstmt.executeUpdate();
-            System.out.println("Rows deleted: " + affected);
-            
             return affected > 0;
-            
         } catch (SQLException e) {
             System.err.println("SQL Exception during delete: " + e.getMessage());
             e.printStackTrace();

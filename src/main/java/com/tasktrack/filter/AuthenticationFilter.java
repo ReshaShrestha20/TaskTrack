@@ -46,64 +46,46 @@ public class AuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        
         String requestURI = httpRequest.getRequestURI();
         String contextPath = httpRequest.getContextPath();
         String path = requestURI.substring(contextPath.length());
-        
-        System.out.println("AuthFilter processing request: " + path);
-        
+                
         if (isPublicResource(path)) {
-            System.out.println("Public resource, allowing access: " + path);
             chain.doFilter(request, response);
             return;
         }
-        
         HttpSession session = httpRequest.getSession(false);
         boolean isLoggedIn = (session != null && session.getAttribute("username") != null);
         if (!isLoggedIn) {
-            System.out.println("Not logged in, redirecting to login");
             httpResponse.sendRedirect(contextPath + "/login");
             return;
         }
-        
         String userRole = getUserRole(httpRequest);
-        System.out.println("User role: " + userRole);
-        
         if (userRole != null) {
             CookiesUtil.addCookie(httpResponse, "role", userRole, 30 * 24 * 60 * 60);
         }
-        
         if (path.equals("/") || path.isEmpty()) {
             if ("admin".equals(userRole)) {
-                System.out.println("Root path, redirecting admin to dashboard");
                 httpResponse.sendRedirect(contextPath + "/adminDashboard");
                 return;
             } else {
-                System.out.println("Root path, redirecting user to home");
                 httpResponse.sendRedirect(contextPath + "/home");
                 return;
             }
         }
-        
         if ("admin".equals(userRole)) {
             if (!isAdminResource(path)) {
-                System.out.println("Admin attempting to access non-admin resource: " + path);
                 httpResponse.sendRedirect(contextPath + "/adminDashboard");
                 return;
             }
         } else {
             if (!isUserResource(path)) {
-                System.out.println("User attempting to access non-user resource: " + path);
                 httpResponse.sendRedirect(contextPath + "/home");
                 return;
             }
         }
-        
-        System.out.println("Access granted to: " + path);
         chain.doFilter(request, response);
     }
     
@@ -169,18 +151,11 @@ public class AuthenticationFilter implements Filter {
         if (session != null) {
             String username = (String) session.getAttribute("username");
             if (username != null) {
-                try {
-                    LoginService loginService = new LoginService();
-                    String userRole = loginService.getUserRole(username);
-                    
-                    return (userRole != null && userRole.equalsIgnoreCase("Admin")) ? "admin" : "user";
-                    
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            	LoginService loginService = new LoginService();
+                String userRole = loginService.getUserRole(username);
+                return (userRole != null && userRole.equalsIgnoreCase("Admin")) ? "admin" : "user";
             }
         }
-        
         return null;
     }
     

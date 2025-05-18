@@ -30,28 +30,21 @@ public class AdminDashboardController extends HttpServlet {
         try {
             int userCount = adminDashboardService.getUserCountSafe();
             int adminCount = adminDashboardService.getAdminCountSafe();
-            int projectCount = adminDashboardService.getProjectCountSafe();
             int taskCount = adminDashboardService.getTaskCountSafe();
-            
             List<UserModel> recentUsers = adminDashboardService.getRecentUsersSafe(5);
-            
             request.setAttribute("userCount", userCount);
             request.setAttribute("adminCount", adminCount);
-            request.setAttribute("projectCount", projectCount);
             request.setAttribute("taskCount", taskCount);
             request.setAttribute("recentUsers", recentUsers);
             
         } catch (Exception e) {
             request.setAttribute("dbError", "Failed to retrieve dashboard data: " + e.getMessage());
             
-            request.setAttribute("userCount", 105);
-            request.setAttribute("adminCount", 20);
-            request.setAttribute("projectCount", 12);
-            request.setAttribute("taskCount", 80);
-            
-            e.printStackTrace();
+            request.setAttribute("userCount", 0);
+            request.setAttribute("adminCount", 0);
+            request.setAttribute("projectCount", 0);
+            request.setAttribute("taskCount", 0);
         }
-        
         request.getRequestDispatcher("WEB-INF/pages/adminDashboard.jsp").forward(request, response);
     }
 }
